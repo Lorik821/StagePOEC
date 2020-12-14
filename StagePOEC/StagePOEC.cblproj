@@ -8,6 +8,7 @@
     <RootNamespace>StagePOEC</RootNamespace>
     <PreserveCase>True</PreserveCase>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <SQLDirectives>SQL(DBMAN=ADO) SQL(BEHAVIOR=ANSI) SQL(TARGETDB=MSSQLSERVER) SQL(DB=stagePOECCobol)</SQLDirectives>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>.\bin\Debug\</OutputPath>
