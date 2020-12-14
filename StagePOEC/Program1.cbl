@@ -1453,7 +1453,7 @@
                end-if
 
            else
-               if optionCreationClient = 2 OR optionCreationClient = 0
+               if optionCreationClient = 0
                    move 0 to optionCreationClient
                else
                    move 1 to optionCreationClient
