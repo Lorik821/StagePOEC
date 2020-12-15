@@ -74,6 +74,7 @@
        77 optionDetailSinistre PIC 9(1).
 
        77 optionCreationAssuranceVie PIC x(1).
+       77 optionDefinitionSomme PIC 9.
 
        77 Menu-trt-fin pic 9.
        77 Recherche-nom-trt-Fin pic 9.
@@ -102,6 +103,22 @@
          03 adresse PIC x(50).
          03 codePostal PIC x(5).
          03 ville PIC x(30).
+         03 somme PIC 9(9)v9(2).
+
+       77 tmpSommeEntiere  PIC 9(9).
+       77 tmpSommeDecimale PIC 9(2).
+
+       01 assureVie.
+         03 codeClientV PIC x(36).
+         03 nomV PIC x(30).
+         03 prenomV PIC x(30).
+         03 dateNaissanceV.
+           04 AAAA PIC 9(4).
+           04 MM PIC 9(2).
+           04 JJ PIC 9(2).
+         03 adresseV PIC x(50).
+         03 codePostalV PIC x(5).
+         03 villeV PIC x(30).
 
        01 contratCourant.
          03 codeContrat PIC x(36).
@@ -150,6 +167,21 @@
              04 adresseL PIC x(50).
              04 codePostalL PIC x(5).
              04 villeL PIC x(30).
+
+       01 beneficiaires OCCURS 200.
+         03 codeClientB PIC x(36).
+         03 nomB PIC x(30).
+         03 prenomB PIC x(30).
+         03 dateNaissanceB.
+           04 AAAA PIC 9(4).
+           04 MM PIC 9(2).
+           04 JJ PIC 9(2).
+         03 adresseB PIC x(50).
+         03 codePostalB PIC x(5).
+         03 villeB PIC x(30).
+         03 somme PIC 9(9)v9(2).
+
+
 
        01 listeContrat.
          02 indice OCCURS 50.
@@ -215,6 +247,9 @@
        77 contratOK PIC 9.
 
        77 rechercheBeneficiaire PIC 9 value 0.
+       77 tailleTabB PIC 9(6).
+       77 NoLigneB PIC 99.
+       77 indiceTabB PIC 9(6).
 
        77 pageCourante PIC 99.
        77 pagesTotales PIC 99.
@@ -258,6 +293,13 @@
          02 prenomI PIC x(8).
          02 adresseI PIC x(19).
          02 villeI PIC x(10).
+
+       01 variablesIntermediairesBeneficiaires.
+         02 codeClientB PIC x(8).
+         02 nomB PIC x(10).
+         02 prenomB PIC x(8).
+         02 adresseB PIC x(19).
+         02 villeb PIC x(10).
 
        77 res PIC x(80).
 
@@ -316,7 +358,8 @@
          10 line 18 col 5 value "Option : ".
          10 line 18 col 14 PIC 9 from Option1.
 
-       01 menu-creation-assurance-maladie background-color is CouleurFondEcran foreground-color is CouleurCaractere.
+      *TRUC A RETROUVER
+       01 menu-creation-assurance-vie background-color is CouleurFondEcran foreground-color is CouleurCaractere.
          10 line 1 col 1 Blank Screen.
          10 line 3 col 1 value " Liste des beneficiaires selectionnes ".
          10 line 3 col 60 value " Date : ".
@@ -325,6 +368,13 @@
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
          10 line 3 col 74 from annee of DateSysteme.
+         10 line 17 col 5 value "Option : "
+         10 line 19 col 5 value "--------------------------------------------------------------------".
+         10 line 20 col 5 value "- 1 - Ajouter beneficiaire deja enregistre                          ".
+         10 line 21 col 5 value "- 2 - Ajouter beneficiaire non enregistre                           ".
+         10 line 22 col 5 value "- 3 - Termine                                                       ".
+         10 line 23 col 5 value "- 0 - Annuler                                                       ".
+         10 line 24 col 5 value "--------------------------------------------------------------------".
 
        01 menu-recherche-client background-color is CouleurFondEcran foreground-color is CouleurCaractere.
          10 line 1 col 1 Blank Screen.
@@ -480,8 +530,54 @@
          10 line 18 col 78 from pagesTotales.
          10 line 20 col 5 value "--------------------------------------------------------------------".
          10 line 21 col 5 value "- Num- Selection du client         - S - Pages suivantes            ".
-         10 line 22 col 5 value "- 0 - Menu Principal               - C - Contrat client             ".
+         10 line 22 col 5 value "- 0 - Menu Precedant               - C - Contrat client             ".
          10 line 23 col 5 value "                                   - D - Detail client              ".
+         10 line 24 col 5 value "--------------------------------------------------------------------".
+
+      *01 menu-Liste-Beneficiaire background-color is CouleurFondEcran foreground-color is CouleurCaractere.
+      *  10 line 1 col 1 Blank Screen.
+      *  10 line 3 col 1 value " LISTE DES BENEFICIAIRES ".
+      *  10 line 3 col 60 value " Date : ".
+      *  10 line 3 col 68 from jour of DateSysteme.
+      *  10 line 3 col 70 value "/".
+      *  10 line 3 col 71 from mois of DateSysteme.
+      *  10 line 3 col 73 value "/".
+      *  10 line 3 col 74 from annee of DateSysteme.
+      *  10 line 6 col 1 value "Nu         Nom        Prenom   Adresse             CP    Ville      Naissance  ".
+      *  10 line 7 col 1 value "-------------------------------------------------------------------------------".
+      *  10 line 18 col 1 value " Num Beneficiaire : ".
+      *  10 line 18 col 25 using optionVisualisation.
+      *  10 line 18 col 67 value "Page ".
+      *  10 line 18 col 72 from pageCourante.
+      *  10 line 18 col 75 value "de ".
+      *  10 line 18 col 78 from pagesTotales.
+      *  10 line 20 col 5 value "--------------------------------------------------------------------".
+      *  10 line 21 col 5 value "- Num- Selection du beneficiaire                                    ".
+      *  10 line 22 col 5 value "- 0 - Menu Precedant                                                ".
+      *  10 line 23 col 5 value "                                                                    ".
+      *  10 line 24 col 5 value "--------------------------------------------------------------------".
+
+       01 menu-Liste-Beneficiaire background-color is CouleurFondEcran foreground-color is CouleurCaractere.
+         10 line 1 col 1 Blank Screen.
+         10 line 3 col 1 value " LISTE DES BENEFICIAIRES ".
+         10 line 3 col 60 value " Date : ".
+         10 line 3 col 68 from jour of DateSysteme.
+         10 line 3 col 70 value "/".
+         10 line 3 col 71 from mois of DateSysteme.
+         10 line 3 col 73 value "/".
+         10 line 3 col 74 from annee of DateSysteme.
+         10 line 6 col 1 value "Nu         Nom        Prenom   Adresse             CP    Ville      Naissance  ".
+         10 line 7 col 1 value "-------------------------------------------------------------------------------".
+         10 line 18 col 1 value " Num Beneficiaire : ".
+         10 line 18 col 21 using optionVisualisation.
+         10 line 18 col 67 value "Page ".
+         10 line 18 col 72 from pageCourante.
+         10 line 18 col 75 value "de ".
+         10 line 18 col 78 from pagesTotales.
+         10 line 20 col 5 value "--------------------------------------------------------------------".
+         10 line 21 col 5 value "- Num- Selection du beneficiaire                                    ".
+         10 line 22 col 5 value "- 0 - Menu Precedant                                                ".
+         10 line 23 col 5 value "                                                                    ".
          10 line 24 col 5 value "--------------------------------------------------------------------".
 
        01 Recherche-client-L background-color is CouleurFondEcran foreground-color is CouleurCaractere.
@@ -525,6 +621,77 @@
          10 line 21 col 5 value "- + - Creation d'un nouveau contrat                                 ".
          10 line 22 col 5 value "- a - Creation d'une assurance vie                                  ".
          10 line 23 col 5 value "- 0 - Menu Contrat             - s - Pages suivantes                ".
+         10 line 24 col 5 value "--------------------------------------------------------------------".
+
+       01 menu-definition-somme-assurance-vie background-color is CouleurFondEcran foreground-color is CouleurCaractere.
+         10 line 1 col 1 Blank Screen.
+         10 line 3 col 1 value " MENU DEFINITION SOMME ASSURANCE VIE ".
+         10 line 3 col 60 value " Date : ".
+         10 line 3 col 68 from jour of DateSysteme.
+         10 line 3 col 70 value "/".
+         10 line 3 col 71 from mois of DateSysteme.
+         10 line 3 col 73 value "/".
+         10 line 3 col 74 from annee of DateSysteme.
+         10 line 5 col 2 from codeClientV of assureVie PIC x(8).
+         10 line 5 col 11 value "/".
+         10 line 5 col 12 from nomV of assureVie PIC x(10).
+         10 line 5 col 23 value "/".
+         10 line 5 col 24 from prenomV of assureVie PIC x(10).
+         10 line 5 col 35 value "/".
+         10 line 5 col 36 from villeV of assureVie PIC x(15).
+         10 line 5 col 60 from JJ of dateNaissanceV of assureVie.
+         10 line 5 col 62 value "/".
+         10 line 5 col 63 from MM of dateNaissanceV of assureVie.
+         10 line 5 col 65 value "/".
+         10 line 5 col 66 from AAAA of dateNaissanceV of assureVie.
+         10 line 9 col 5 from codeClient of clientCourant PIC x(8).
+         10 line 10 col 5 from nom of clientcourant PIC x(10).
+         10 line 11 col 5 from prenom of clientCourant PIC x(10).
+         10 line 12 col 5 from JJ of dateNaissance of clientCourant.
+         10 line 12 col 7 value "/".
+         10 line 12 col 9 from MM of dateNaissance of clientCourant.
+         10 line 12 col 11 value "/".
+         10 line 12 col 13 from AAAA of dateNaissance of clientCourant.
+         10 line 14 col 5 value "Somme a attribuer a ce beneficiaire : ".
+         10 line 14 col 44 using tmpSommeEntiere.
+         10 line 14 col 53 value ".".
+         10 line 14 col 54 using tmpSommeDecimale.
+         10 line 14 col 57 value "Euros".
+         10 line 16 col 5 value "Option : ".
+         10 line 16 col 14 using optionDefinitionSomme.
+         10 line 20 col 5 value "--------------------------------------------------------------------".
+         10 line 21 col 5 value "- 1 - Valider                                                       ".
+         10 line 22 col 5 value "- 0 - Annuler                                                       ".
+         10 line 23 col 5 value "                                                                    ".
+         10 line 24 col 5 value "--------------------------------------------------------------------".
+         
+       01 menu-confirmation-contrat-assurance-vie background-color is CouleurFondEcran foreground-color is CouleurCaractere.
+         10 line 1 col 1 Blank Screen.
+         10 line 3 col 1 value " DETAIL CONTRAT ASSURANCE VIE ".
+         10 line 3 col 60 value " Date : ".
+         10 line 3 col 68 from jour of DateSysteme.
+         10 line 3 col 70 value "/".
+         10 line 3 col 71 from mois of DateSysteme.
+         10 line 3 col 73 value "/".
+         10 line 3 col 74 from annee of DateSysteme.
+         10 line 5 col 2 from codeClientV PIC X(8).
+         10 line 5 col 11 value "/".
+         10 Line 5 Col 12 from NomV PIC X(10).
+         10 line 5 col 23 value "/".
+         10 Line 5 Col 24 from PrenomV PIC X(10).
+         10 line 5 col 35 value "/".
+         10 Line 5 Col 36 from VilleV PIC X(15).
+         10 Line 5 Col 60 from JJ of dateNaissanceV.
+         10 line 5 col 62 value "/".
+         10 Line 5 Col 63 from MM of dateNaissanceV.
+         10 line 5 col 65 value "/".
+         10 Line 5 Col 66 from AAAA of dateNaissanceV.
+         10 line 7 col 5 value " NOM         PRENOM        DATE DE NAISSANCE     SOMME ATTRIBUEE     ".
+         10 line 18 col 5 value " Option : ".
+         10 line 20 col 5 value "--------------------------------------------------------------------".
+         10 line 21 col 5 value "- 1 - Valider                                                       ".
+         10 line 22 col 5 value "- 0 - Annuler                                                       ".
+         10 line 23 col 5 value "- s - Page suivante                                                 ".
          10 line 24 col 5 value "--------------------------------------------------------------------".
 
        01 Recherche-contrat-L background-color is CouleurFondEcran foreground-color is CouleurCaractere.
@@ -875,9 +1042,8 @@
       *        ELSE
       *            perform menuVisualisationContrats
       *        end-if
-               if rechercheBeneficiaire <> 1 then 
-                   perform visualisationClients
-               else
+               perform visualisationClients
+               if rechercheBeneficiaire = 1
                    move 1 to optionRechercheClientNom
                end-if
            END-IF.
@@ -1344,33 +1510,49 @@
 
        creationAssuranceVie-init.
       *    Ici on utilise le tableau de client, puisqu'un d'un point de vue technique, les clients et les bénéficiaires sont identiques
-           initialize listeClient.
-           move 0 to tailleTab.
-           move 8 to NoLigne.
-           move 1 to indiceTab.
+           initialize beneficiaires.
+           move 0 to tailleTabB.
+           move 8 to NoLigneB.
+           move 1 to indiceTabB.
            move 1 to optionCreationAssuranceVie.
-           
+
+      *    On sauvegarde le mandataire du contrat d'assurance vie, puisque on se sert de clientCourant pour les "fonctions" du programmes
+           move codeClient of clientCourant to codeClientV of assureVie.
+           move nom of clientCourant to nomV of assureVie.
+           move prenom of clientCourant to prenomV of assureVie.
+           move AAAA of dateNaissance of clientCourant to AAAA of dateNaissanceV of assureVie.
+           move MM of dateNaissance of clientCourant to MM of dateNaissanceV of assureVie.
+           move JJ of dateNaissance of clientCourant to JJ of dateNaissanceV of assureVie.
+           move adresse of clientCourant to adresseV of assureVie.
+           move codePostal of clientCourant to codePostalV of assureVie.
+           move ville of clientCourant to villeV of assureVie.
            
 
        creationAssuranceVie-trt.
-           move 0 to optionCreationAssuranceVie.
-           display menu-creation-assurance-maladie.
+           display menu-creation-assurance-vie.
 
       *    Travail de la boucle pour afficher le contenu du tableau (pagination non encore gérée)
-           if tailleTab > 0 then
-               move 8 to NoLigne
+           if tailleTabB > 0 then
+               move 8 to NoLigneB
       *        On utilise une autre variable que indiceTab pour afficher le tableau ; on a besoin de cette variable par la suite
                move 1 to tmpIndiceTab
-               perform until NoLigne = 17 OR tmpIndiceTab = tailleTab
-                   STRING "  " nomL(tmpIndiceTab) "     " prenomL(tmpIndiceTab) "      " JJ of dateNaissanceL(tmpIndiceTab) "/" MM of dateNaissanceL(tmpIndiceTab) "/" AAAA of dateNaissanceL(tmpIndiceTab) INTO res
-                   DISPLAY res line NoLigne col 1
+               initialize res
+               perform until NoLigneB = 17 OR tmpIndiceTab > tailleTabB
+                   move nomB of beneficiaires(tmpIndiceTab) to nomB of variablesIntermediairesBeneficiaires
+                   move prenomB of beneficiaires(tmpIndiceTab) to prenomB of variablesIntermediairesBeneficiaires
+                   move adresseB of beneficiaires(tmpIndiceTab) to adresseB of variablesIntermediairesBeneficiaires
+                   move villeB of beneficiaires(tmpIndiceTab) to villeb of variablesIntermediairesBeneficiaires
+                   STRING "  " nomB of variablesIntermediairesBeneficiaires "  " prenomB of variablesIntermediairesBeneficiaires "      " adresseB of variablesIntermediairesBeneficiaires "   " villeb of variablesIntermediairesBeneficiaires 
+                   "       " JJ of dateNaissanceB(tmpIndiceTab) "/" MM of dateNaissanceB(tmpIndiceTab) "/" AAAA of dateNaissanceB(tmpIndiceTab) INTO res
+                   DISPLAY res line NoLigneB col 1
                    add 1 to tmpIndiceTab
-                   add 1 to NoLigne
+                   add 1 to NoLigneB
                end-perform
            end-if.
-           
-      *    On récupère le choix de l'utilisateur 
-           accept optionCreationAssuranceVie line 19 col 5.
+
+      *    On récupère le choix de l'utilisateur
+           move 0 to optionCreationAssuranceVie.
+           accept optionCreationAssuranceVie line 17 col 15.
 
       *    L'utilisateur veut ajouter un bénéficiaire qui existe déjà dans la base de données
            if optionCreationAssuranceVie = 1 then
@@ -1382,32 +1564,102 @@
                move 0 to rechercheBeneficiaire
 
       *        En principe ce genre de chose se fait avec un move correponding ; mais à cause d'une erreur/négligeance au début du programme, cela se fait ainsi
-               move codeClient of clientCourant to codeClientL of listeClient(indiceTab)
-               move nom of clientCourant to nomL of listeClient(indiceTab)
-               move prenom of clientCourant to prenomL of listeClient(indiceTab)
-               move AAAA of dateNaissance of clientCourant to AAAA of dateNaissanceL of listeClient(indiceTab)
-               move MM of dateNaissance of clientCourant to MM of dateNaissanceL of listeClient(indiceTab)
-               move JJ of dateNaissance of clientCourant to JJ of dateNaissanceL of listeClient(indiceTab)
-               move adresse of clientCourant to adresseL of listeClient(indiceTab)
-               move codePostal of clientCourant to codePostalL of listeClient(indiceTab)
-               move ville of clientCourant to villeL of listeClient(indiceTab)
+               move codeClient of clientCourant to codeClientB of beneficiaires(indiceTabB)
+               move nom of clientCourant to nomB of beneficiaires(indiceTabB)
+               move prenom of clientCourant to prenomB of beneficiaires(indiceTabB)
+               move AAAA of dateNaissance of clientCourant to AAAA of dateNaissanceB of beneficiaires(indiceTabB)
+               move MM of dateNaissance of clientCourant to MM of dateNaissanceB of beneficiaires(indiceTabB)
+               move JJ of dateNaissance of clientCourant to JJ of dateNaissanceB of beneficiaires(indiceTabB)
+               move adresse of clientCourant to adresseB of beneficiaires(indiceTabB)
+               move codePostal of clientCourant to codePostalB of beneficiaires(indiceTabB)
+               move ville of clientCourant to villeB of beneficiaires(indiceTabB)
                
       *        On n'oublie par d'incrémenter ces deux variables
-               add 1 to indiceTab
-               add 1 to tailleTab
-
+               add 1 to indiceTabB
+               add 1 to tailleTabB
+      *    L'utilisateur veut ajouter un bénéficiaire qui n'existe pas dans la base de données ; il faut le créer puis l'ajouter au tableau
            else if optionCreationAssuranceVie = 2 then
-               continue
+      *        On renvoi l'utilisateur vers le menu de création client ; pour ce faire, on met une variable rechercheBeneficiaire qui va permettre de faire la différence entre la recherche d'un client pour ensuite afficher ses informations à un 
+      *        bénéficiaire que l'on veut simplement ajouter à notre liste
+               move 1 to rechercheBeneficiaire
+               perform creationClient
+      *        On remet la variable à son état d 'origine ; en principe, le client selectionné par l' utilisateur se trouve dans clientCourant ; plus qu 'à l' ajouter à listeClient
+               move 0 to rechercheBeneficiaire
+
+      *        En principe ce genre de chose se fait avec un move correponding ; mais à cause d 'une erreur/négligeance au début du programme, cela se fait ainsi
+               move codeClient of clientCourant to codeClientB of beneficiaires(indiceTabB)
+               move nom of clientCourant to nomB of beneficiaires(indiceTabB)
+               move prenom of clientCourant to prenomB of beneficiaires(indiceTabB)
+               move AAAA of dateNaissance of clientCourant to AAAA of dateNaissanceB of beneficiaires(indiceTabB)
+               move MM of dateNaissance of clientCourant to MM of dateNaissanceB of beneficiaires(indiceTabB)
+               move JJ of dateNaissance of clientCourant to JJ of dateNaissanceB of beneficiaires(indiceTabB)
+               move adresse of clientCourant to adresseB of beneficiaires(indiceTabB)
+               move codePostal of clientCourant to codePostalB of beneficiaires(indiceTabB)
+               move ville of clientCourant to villeB of beneficiaires(indiceTabB)
+
+      *        On n'oublie par d' incrémenter ces deux variables
+               add 1 to indiceTabB
+               add 1 to tailleTabB
+
+      *    L'utilisateur a terminé la sélection des bénéficiaires, il est temps de lui demander combien à combien d'argent sont couverts les bénéficiaires sélectionnés
+           else if optionCreationAssuranceVie = 3 then
+               move 1 to tmpindiceTab
+               perform until tmpindiceTab > tailleTabB
+
+                   move 0 to optionDefinitionSomme
+
+      *            On charge les données pour chaque beneficiaire dans les variables de clientcourant
+                   move codeClientB of beneficiaires(tmpIndiceTab) to codeClient of clientCourant
+                   move nomB of beneficiaires(tmpIndiceTab) to nom of clientCourant
+                   move prenomB of beneficiaires(tmpIndiceTab) to prenom of clientCourant
+                   move AAAA of dateNaissanceB of beneficiaires(tmpIndiceTab) to AAAA of dateNaissance of clientCourant
+                   move MM of dateNaissanceB of beneficiaires(tmpIndiceTab) to MM of dateNaissance of clientCourant
+                   move JJ of dateNaissanceB of beneficiaires(tmpIndiceTab) to JJ of dateNaissance of clientCourant
+                   move adresseB of beneficiaires(tmpIndiceTab) to adresse of clientCourant
+                   move codePostalB of beneficiaires(tmpIndiceTab) to codePostal of clientCourant
+                   move villeB of beneficiaires(tmpIndiceTab) to ville of clientCourant
+
+      *            On réinitialise la variable somme
+                   initialize somme of clientCourant
+
+      *            On affiche les données et on récupère la somme alloué pour le bénéficiaire en question
+                   display menu-definition-somme-assurance-vie
+                   accept menu-definition-somme-assurance-vie
+
+      *            Une fois les donnée pour un bénéficiaire récupérées, on assemble les deux variables temporaires en une variable décimale
+                   multiply 0.01 by tmpSommeDecimale GIVING somme of clientCourant
+                   add tmpSommeEntiere to somme of clientCourant
+
+      *            On enregistre la somme pour le bénéficiaire courant dans le tableau
+                   move somme of clientCourant to somme of beneficiaires(tmpIndiceTab) 
+
+                   add 1 to tmpIndiceTab
+
+               end-perform
+
+      *        Après avoir fini de récolter toutes les informations, on renvoi l'utilisateur sur un screen résumant toutes les données saisies lui demandant confirmation
+      *
+      *        A FAIRE UNE FOIS QUE LA VISAULISATION DE CONTRAT D'ASSURANCE VIE SERA FAIT
+      *
            else if optionCreationAssuranceVie = 0 then
-               continue
+               move 0 to optionCreationAssuranceVie
            else 
-               move 1 to optionCreationAssuranceVie
+               continue
            end-if.
 
 
 
        creationAssuranceVie-fin.
-           continue. 
+      *    On remet le assureVie en tant que clientCourant pour que cela fonctionne avec le reste du programme
+           move codeClientV of assureVie to codeClient of clientCourant.
+           move nomV of assureVie to nom of clientCourant.
+           move prenomV of assureVie to prenom of clientCourant.
+           move AAAA of dateNaissanceV of assureVie to AAAA of dateNaissance of clientCourant.
+           move MM of dateNaissanceV of assureVie to MM of dateNaissance of clientCourant.
+           move JJ of dateNaissanceV of assureVie to JJ of dateNaissance of clientCourant.
+           move adresseV of assureVie to adresse of clientCourant.
+           move codePostalV of assureVie to codePostal of clientCourant.
+           move villeV of assureVie to ville of clientCourant.
 
 
 
@@ -1548,7 +1800,6 @@
        creationClient-init.
            move 1 to optionCreationClient.
            initialize clientCourant.
-           continue.
 
        creationClient-trt.
            move 0 to optionCreationClient.
@@ -1654,7 +1905,13 @@
        visualisationClients-trt.
            move 0 to optionVisualisation.
            perform until indiceTab = tailleTab
-               DISPLAY menu-Liste-client
+
+               if rechercheBeneficiaire <> 1
+                   DISPLAY menu-Liste-client
+               else
+                   DISPLAY menu-Liste-beneficiaire
+               end-if
+
                move 8 to NoLigne
                initialize optionIs
                perform until NoLigne = 17 OR indiceTab = tailleTab
@@ -1672,12 +1929,16 @@
 
                perform until optionIs = 'ok'
       *            accept optionVisualisation line 18 col 14 //optionVisualisationDetCon
-                   accept menu-Liste-client
+                   if rechercheBeneficiaire <> 1
+                       accept menu-Liste-client
+                   else
+                       accept menu-Liste-Beneficiaire
+                   end-if
                    if optionVisualisation = 's' AND pageCourante < pagesTotales
                        move 'ok' to optionIs
                        ADD 1 to pageCourante
                    else
-                       if optionVisualisation > 0 AND optionVisualisation <= NoLigneVisible AND (optionVisualisationDetCon = 'c' OR optionVisualisationDetCon = 'd')
+                       if optionVisualisation > 0 AND optionVisualisation <= NoLigneVisible AND (optionVisualisationDetCon = 'c' OR optionVisualisationDetCon = 'd' OR rechercheBeneficiaire = 1)
       *                Ici il va falloir s'arranger pour afficher le détail d'un client ou d'afficher la liste de ses contrats
                            move 'ok' to optionIs
                            subtract 1 FROM pageCourante GIVING tmpPageCourante
@@ -1695,11 +1956,11 @@
       *
       *                Appel la visualisation des contrats pour le client sélectionné si l'utilisateur a choisi l'option c ; appel le détail du client sélectionné sur l'utilisateur a choisi l'option d
       *
-                           if optionVisualisationDetCon = 'c' then
+                           if optionVisualisationDetCon = 'c' AND rechercheBeneficiaire <> 1 then
                                perform menuVisualisationContrats
                                move tailleTab to indiceTab
                            else
-                               if optionVisualisationDetCon = 'd' then
+                               if optionVisualisationDetCon = 'd' AND rechercheBeneficiaire <> 1 then
                                    perform menuDetailClient
                                    move tailleTab to indiceTab
                                end-if
