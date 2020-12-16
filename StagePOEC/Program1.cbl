@@ -108,6 +108,8 @@
        77 tmpSommeEntiere  PIC 9(9).
        77 tmpSommeDecimale PIC 9(2).
 
+       77 tmpCodeContratAV PIC x(36).
+
        01 assureVie.
          03 codeClientV PIC x(36).
          03 nomV PIC x(30).
@@ -119,6 +121,7 @@
          03 adresseV PIC x(50).
          03 codePostalV PIC x(5).
          03 villeV PIC x(30).
+         03 somme PIC 9(9)v9(2).
 
        01 contratCourant.
          03 codeContrat PIC x(36).
@@ -153,6 +156,8 @@
            04 JJ PIC 9(2).
 
        77 fillerREQSQL PIC x(5).
+       77 fillerREQSQL2 PIC x(30).
+       77 fillerREQSQL3 PIC x(30).
 
        01 listeClient.
          02 indice OCCURS 50.
@@ -250,6 +255,8 @@
        77 tailleTabB PIC 9(6).
        77 NoLigneB PIC 99.
        77 indiceTabB PIC 9(6).
+       77 optionConfirmationContrat PIC 9.
+       77 NoLigneConfirmationAssuranceVie PIC 99.
 
        77 pageCourante PIC 99.
        77 pagesTotales PIC 99.
@@ -279,6 +286,9 @@
          02 AV PIC x(1) value 'n'.
 
        77 tmpDateCreaClient PIC x(10).
+
+       77 tmpCodeClient PIC x(36).
+       77 tmpSomme PIC 9(9)v9(2). 
 
        01 variablesIntermediairesContratsDates.
          02 totalJours PIC 9(7).
@@ -368,7 +378,7 @@
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
          10 line 3 col 74 from annee of DateSysteme.
-         10 line 17 col 5 value "Option : "
+         10 line 17 col 5 value "Option : ".
          10 line 19 col 5 value "--------------------------------------------------------------------".
          10 line 20 col 5 value "- 1 - Ajouter beneficiaire deja enregistre                          ".
          10 line 21 col 5 value "- 2 - Ajouter beneficiaire non enregistre                           ".
@@ -694,6 +704,36 @@
          10 line 23 col 5 value "- s - Page suivante                                                 ".
          10 line 24 col 5 value "--------------------------------------------------------------------".
 
+       01 menu-Visualisation-contrat-assurance-Vie background-color is CouleurFondEcran foreground-color is CouleurCaractere.
+         10 line 1 col 1 Blank Screen.
+         10 line 3 col 1 value " DETAIL CONTRAT ASSURANCE VIE ".
+         10 line 3 col 60 value " Date : ".
+         10 line 3 col 68 from jour of DateSysteme.
+         10 line 3 col 70 value "/".
+         10 line 3 col 71 from mois of DateSysteme.
+         10 line 3 col 73 value "/".
+         10 line 3 col 74 from annee of DateSysteme.
+         10 line 5 col 2 from codeClient PIC X(8).
+         10 line 5 col 11 value "/".
+         10 Line 5 Col 12 from Nom PIC X(10).
+         10 line 5 col 23 value "/".
+         10 Line 5 Col 24 from Prenom PIC X(10).
+         10 line 5 col 35 value "/".
+         10 Line 5 Col 36 from Ville PIC X(15).
+         10 Line 5 Col 60 from JJ of dateNaissance.
+         10 line 5 col 62 value "/".
+         10 Line 5 Col 63 from MM of dateNaissance.
+         10 line 5 col 65 value "/".
+         10 Line 5 Col 66 from AAAA of dateNaissance.
+         10 line 7 col 5 value " NOM         PRENOM        DATE DE NAISSANCE     SOMME ATTRIBUEE     ".
+         10 line 18 col 5 value " Option : ".
+         10 line 20 col 5 value "--------------------------------------------------------------------".
+         10 line 21 col 5 value "                                                                    ".
+         10 line 22 col 5 value "- 0 - Retour                                                        ".
+         10 line 23 col 5 value "- s - Page suivante                                                 ".
+         10 line 24 col 5 value "--------------------------------------------------------------------".
+
+
        01 Recherche-contrat-L background-color is CouleurFondEcran foreground-color is CouleurCaractere.
       *  10 line NoLigne col 10 from Contrat.
       *  10 line NoLigne col 19 from Garantie.
@@ -993,15 +1033,26 @@
            if codeClient of clientCourant = '' AND nom of clientCourant = '' AND prenom of clientCourant = '' THEN
                move 1 to optionRechercheClientNom
            else
+               initialize fillerREQSQL
+               initialize fillerREQSQL2
+               initialize fillerREQSQL3
+
                STRING codeClient of clientcourant '%' DELIMITED ' ' INTO fillerREQSQL
                STRING fillerREQSQL DELIMITED ' ' INTO fillerREQSQL
 
+               STRING nom of clientCourant '%' DELIMITED ' ' INTO fillerREQSQL2
+               STRING fillerREQSQL2 DELIMITED ' ' INTO fillerREQSQL2
+
+               STRING prenom of clientCourant '%' DELIMITED ' ' INTO fillerREQSQL3
+               STRING fillerREQSQL3 DELIMITED ' ' INTO fillerREQSQL3
+
                EXEC sql
-              declare CursorClient cursor for
-              select codeClient, nom, prenom, DAY(dateNaissance), MONTH(dateNaissance), YEAR(dateNaissance), adresse, codePostal, ville
-              from clients
-              where nom = :clientCourant.nom OR codeClient like :fillerREQSQL OR prenom = :clientCourant.prenom
-              order by nom
+                   declare CursorClient cursor for
+                   select codeClient, nom, prenom, DAY(dateNaissance), MONTH(dateNaissance), YEAR(dateNaissance), adresse, codePostal, ville
+                   from clients
+      *            where nom = :clientCourant.nom OR codeClient like :fillerREQSQL OR prenom = :clientCourant.prenom
+                   where nom like :fillerREQSQL2 OR codeClient like :fillerREQSQL OR prenom like :fillerREQSQL3
+                   order by nom
                END-EXEC
 
                EXEC sql
@@ -1384,7 +1435,11 @@
                        add tmpPageCouranteContrats to indiceContrat
       *            move to contratCourant depuis le tableau avec l'indice en question
                        move corresponding indice of listeContrat(indiceContrat) to contratCourant
-                       perform menuVisualisationContrats-dtl
+                       if AV of sinistresCouverts of indice(indiceContrat) = 0
+                           perform menuVisualisationContrats-dtl
+                       else if AV of sinistresCouverts of indice(indiceContrat) = 1
+                           perform menuVisualisationContratsAssuranceVie-dtl
+                       end-if
                    else
                        if optionVisualisationContrats = 0
                            move 'ok' to optionIsContrats
@@ -1410,11 +1465,98 @@
                add 1 to pagesTotalesContrats
                move 1 to indiceTabContrats
 
-           else
-               if optionDetailContrat = 2 then
-                   perform menuVisualisationSinistres
-                   move tailleTabContrats to indiceTabContrats
-               end-if.
+           else if optionDetailContrat = 2 then
+               perform menuVisualisationSinistres
+               move tailleTabContrats to indiceTabContrats
+           end-if.
+
+       menuVisualisationContratsAssuranceVie-dtl.
+      *    Ici j'utilise la structure assureVie en tant que structure transit entre le curseur et le tableau
+           display menu-Visualisation-contrat-assurance-Vie.
+           move 0 to optionDetailContrat.
+           move 0 to tailleTabB.
+           move 1 to tmpIndiceTab.
+           EXEC sql
+             close CursorContrats
+           end-exec.
+
+      *    On récupère le codeClient et la somme pour chaque bénéficiaire du contrat d'assurance vie du clientCourant
+           EXEC sql
+             declare CursorAssuranceVie cursor for
+             select codeClient, somme
+             from assurancesVie
+             where codeContrat = :contratCourant.codeContrat
+           END-EXEC.
+
+           EXEC sql
+             open CursorAssuranceVie
+           END-EXEC.
+
+           perform until SQLCODE <> 0
+               EXEC sql
+                   fetch CursorAssuranceVie into :assureVie.codeClientV, :assureVie.somme
+               END-EXEC
+
+               if SQLCODE = 0 then
+                   move codeClientV of assureVie to codeClientB of beneficiaires(tmpIndiceTab)
+                   move somme of assureVie to somme of beneficiaires(tmpIndiceTab)
+                   add 1 to tailleTabB
+                   add 1 to tmpIndiceTab
+               end-if
+           end-perform
+
+           EXEC sql
+             close CursorAssuranceVie
+           END-EXEC.
+
+      *    Maintenant on récupère les autres données d'un bénéficiaire par rapport à son code client
+           move 1 to tmpIndiceTab.
+           perform until tmpIndiceTab > tailleTabB
+               move codeClientB of beneficiaires(tmpIndiceTab) to codeClientV
+               EXEC sql
+                   select nom, prenom, DAY(dateNaissance), MONTH(dateNaissance), YEAR(dateNaissance), adresse, codePostal, ville 
+                   INTO :assureVie.nomV, :assureVie.prenomV, :assureVie.dateNaissanceV.JJ, :assureVie.dateNaissanceV.MM, :assureVie.dateNaissanceV.AAAA, :assureVie.adresseV, :assureVie.codePostalV, :assureVie.villeV
+                   FROM clients
+                   WHERE codeClient = :codeClientV
+               END-EXEC
+
+               move nomV of assureVie to nomB of beneficiaires(tmpIndiceTab)
+               move prenomV of assureVie to prenomB of beneficiaires(tmpIndiceTab)
+               move corresponding dateNaissanceV of assureVie to dateNaissanceB of beneficiaires(tmpIndiceTab)
+               move adresseV of assureVie to adresseB of beneficiaires(tmpIndiceTab)
+               move codePostalV of assureVie to codePostalB of beneficiaires(tmpIndiceTab)
+               move villeV of assureVie to villeB of beneficiaires(tmpIndiceTab)
+
+               add 1 to tmpIndiceTab
+           end-perform.
+
+      *    Maintenant que nous avons toutes les informations, il est temps d'afficher le résultat
+           move 1 to tmpIndiceTab.
+           move 8 to NoLigneB.
+           perform until tmpIndiceTab > tailleTabB
+
+               multiply somme of beneficiaires(tmpIndiceTab) by 100 giving somme of beneficiaires(tmpIndiceTab)
+               divide somme of beneficiaires(tmpIndiceTab) by 100 GIVING tmpSommeEntiere REMAINDER tmpSommeDecimale
+               multiply somme of beneficiaires(tmpIndiceTab) by 0.01 giving somme of beneficiaires(tmpIndiceTab)
+
+               move nomB of beneficiaires(tmpIndiceTab) to nomB of variablesIntermediairesBeneficiaires
+               move prenomB of beneficiaires(tmpIndiceTab) to prenomB of variablesIntermediairesBeneficiaires
+               initialize res
+               STRING "  " nomB of variablesIntermediairesBeneficiaires "     " prenomB of variablesIntermediairesBeneficiaires "         " JJ of dateNaissanceB(tmpIndiceTab) "/" MM of dateNaissanceB(tmpIndiceTab) "/"
+                 AAAA of dateNaissanceB(tmpIndiceTab) "            " tmpSommeEntiere "," tmpSommeDecimale into res
+               display res line NoLigneB col 1
+               
+               add 1 to NoLigneB
+               add 1 to tmpIndiceTab
+           end-perform.
+
+           EXEC sql
+             open CursorContrats
+           END-EXEC
+
+
+           accept optionDetailContrat line 18 col 15.
+      *    Pagination non encore gérée
 
        menuVisualisationContrats-fin.
            EXEC sql
@@ -1573,80 +1715,144 @@
                move adresse of clientCourant to adresseB of beneficiaires(indiceTabB)
                move codePostal of clientCourant to codePostalB of beneficiaires(indiceTabB)
                move ville of clientCourant to villeB of beneficiaires(indiceTabB)
-               
+
       *        On n'oublie par d'incrémenter ces deux variables
                add 1 to indiceTabB
                add 1 to tailleTabB
       *    L'utilisateur veut ajouter un bénéficiaire qui n'existe pas dans la base de données ; il faut le créer puis l'ajouter au tableau
-           else if optionCreationAssuranceVie = 2 then
-      *        On renvoi l'utilisateur vers le menu de création client ; pour ce faire, on met une variable rechercheBeneficiaire qui va permettre de faire la différence entre la recherche d'un client pour ensuite afficher ses informations à un 
+           else
+               if optionCreationAssuranceVie = 2 then
+      *        On renvoi l'utilisateur vers le menu de création client ; pour ce faire, on met une variable rechercheBeneficiaire qui va permettre de faire la différence entre la recherche d'un client pour ensuite afficher ses informations à un
       *        bénéficiaire que l'on veut simplement ajouter à notre liste
-               move 1 to rechercheBeneficiaire
-               perform creationClient
+                   move 1 to rechercheBeneficiaire
+                   perform creationClient
       *        On remet la variable à son état d 'origine ; en principe, le client selectionné par l' utilisateur se trouve dans clientCourant ; plus qu 'à l' ajouter à listeClient
-               move 0 to rechercheBeneficiaire
+                   move 0 to rechercheBeneficiaire
 
       *        En principe ce genre de chose se fait avec un move correponding ; mais à cause d 'une erreur/négligeance au début du programme, cela se fait ainsi
-               move codeClient of clientCourant to codeClientB of beneficiaires(indiceTabB)
-               move nom of clientCourant to nomB of beneficiaires(indiceTabB)
-               move prenom of clientCourant to prenomB of beneficiaires(indiceTabB)
-               move AAAA of dateNaissance of clientCourant to AAAA of dateNaissanceB of beneficiaires(indiceTabB)
-               move MM of dateNaissance of clientCourant to MM of dateNaissanceB of beneficiaires(indiceTabB)
-               move JJ of dateNaissance of clientCourant to JJ of dateNaissanceB of beneficiaires(indiceTabB)
-               move adresse of clientCourant to adresseB of beneficiaires(indiceTabB)
-               move codePostal of clientCourant to codePostalB of beneficiaires(indiceTabB)
-               move ville of clientCourant to villeB of beneficiaires(indiceTabB)
+                   move codeClient of clientCourant to codeClientB of beneficiaires(indiceTabB)
+                   move nom of clientCourant to nomB of beneficiaires(indiceTabB)
+                   move prenom of clientCourant to prenomB of beneficiaires(indiceTabB)
+                   move AAAA of dateNaissance of clientCourant to AAAA of dateNaissanceB of beneficiaires(indiceTabB)
+                   move MM of dateNaissance of clientCourant to MM of dateNaissanceB of beneficiaires(indiceTabB)
+                   move JJ of dateNaissance of clientCourant to JJ of dateNaissanceB of beneficiaires(indiceTabB)
+                   move adresse of clientCourant to adresseB of beneficiaires(indiceTabB)
+                   move codePostal of clientCourant to codePostalB of beneficiaires(indiceTabB)
+                   move ville of clientCourant to villeB of beneficiaires(indiceTabB)
 
       *        On n'oublie par d' incrémenter ces deux variables
-               add 1 to indiceTabB
-               add 1 to tailleTabB
+                   add 1 to indiceTabB
+                   add 1 to tailleTabB
 
       *    L'utilisateur a terminé la sélection des bénéficiaires, il est temps de lui demander combien à combien d'argent sont couverts les bénéficiaires sélectionnés
-           else if optionCreationAssuranceVie = 3 then
-               move 1 to tmpindiceTab
-               perform until tmpindiceTab > tailleTabB
+               else
+                   if optionCreationAssuranceVie = 3 then
+                       move 1 to tmpindiceTab
+                       perform until tmpindiceTab > tailleTabB
 
-                   move 0 to optionDefinitionSomme
+                           move 0 to optionDefinitionSomme
 
       *            On charge les données pour chaque beneficiaire dans les variables de clientcourant
-                   move codeClientB of beneficiaires(tmpIndiceTab) to codeClient of clientCourant
-                   move nomB of beneficiaires(tmpIndiceTab) to nom of clientCourant
-                   move prenomB of beneficiaires(tmpIndiceTab) to prenom of clientCourant
-                   move AAAA of dateNaissanceB of beneficiaires(tmpIndiceTab) to AAAA of dateNaissance of clientCourant
-                   move MM of dateNaissanceB of beneficiaires(tmpIndiceTab) to MM of dateNaissance of clientCourant
-                   move JJ of dateNaissanceB of beneficiaires(tmpIndiceTab) to JJ of dateNaissance of clientCourant
-                   move adresseB of beneficiaires(tmpIndiceTab) to adresse of clientCourant
-                   move codePostalB of beneficiaires(tmpIndiceTab) to codePostal of clientCourant
-                   move villeB of beneficiaires(tmpIndiceTab) to ville of clientCourant
+                           move codeClientB of beneficiaires(tmpIndiceTab) to codeClient of clientCourant
+                           move nomB of beneficiaires(tmpIndiceTab) to nom of clientCourant
+                           move prenomB of beneficiaires(tmpIndiceTab) to prenom of clientCourant
+                           move AAAA of dateNaissanceB of beneficiaires(tmpIndiceTab) to AAAA of dateNaissance of clientCourant
+                           move MM of dateNaissanceB of beneficiaires(tmpIndiceTab) to MM of dateNaissance of clientCourant
+                           move JJ of dateNaissanceB of beneficiaires(tmpIndiceTab) to JJ of dateNaissance of clientCourant
+                           move adresseB of beneficiaires(tmpIndiceTab) to adresse of clientCourant
+                           move codePostalB of beneficiaires(tmpIndiceTab) to codePostal of clientCourant
+                           move villeB of beneficiaires(tmpIndiceTab) to ville of clientCourant
 
       *            On réinitialise la variable somme
-                   initialize somme of clientCourant
+                           initialize somme of clientCourant
 
       *            On affiche les données et on récupère la somme alloué pour le bénéficiaire en question
-                   display menu-definition-somme-assurance-vie
-                   accept menu-definition-somme-assurance-vie
+                           move 000000000 to tmpSommeEntiere
+                           move 00 to tmpSommeDecimale
+                           display menu-definition-somme-assurance-vie
+                           accept menu-definition-somme-assurance-vie
 
       *            Une fois les donnée pour un bénéficiaire récupérées, on assemble les deux variables temporaires en une variable décimale
-                   multiply 0.01 by tmpSommeDecimale GIVING somme of clientCourant
-                   add tmpSommeEntiere to somme of clientCourant
+                           multiply 0.01 by tmpSommeDecimale GIVING somme of clientCourant
+                           add tmpSommeEntiere to somme of clientCourant
 
       *            On enregistre la somme pour le bénéficiaire courant dans le tableau
-                   move somme of clientCourant to somme of beneficiaires(tmpIndiceTab) 
+                           move somme of clientCourant to somme of beneficiaires(tmpIndiceTab)
 
-                   add 1 to tmpIndiceTab
+                           add 1 to tmpIndiceTab
 
-               end-perform
+                       end-perform
 
       *        Après avoir fini de récolter toutes les informations, on renvoi l'utilisateur sur un screen résumant toutes les données saisies lui demandant confirmation
       *
       *        A FAIRE UNE FOIS QUE LA VISAULISATION DE CONTRAT D'ASSURANCE VIE SERA FAIT
       *
+
+                       move 0 to optionConfirmationContrat
+                       display menu-confirmation-contrat-assurance-vie
+                       move 1 to tmpIndiceTab
+                       move 8 to NoLigneConfirmationAssuranceVie
+      *                Affichage du résumé pour l'utilisateur (pagination non encore gérée)
+                       perform until tmpIndiceTab > tailleTabB AND NoLigneConfirmationAssuranceVie < 18
+                           initialize res
+      *                    On utilise des variables intermédiaires pour couper les champs trop long des variables de base
+                           move nomB of beneficiaires(tmpIndiceTab) to nomB of variablesIntermediairesBeneficiaires
+                           move prenomB of beneficiaires(tmpIndiceTab) to prenomB of variablesIntermediairesBeneficiaires
+
+      *                    Malheureusement il est difficile en cobol d'afficher nativement un numérique décimal ; en effet dans la déclaration le 'v' ne prend pas de mémoire, donc il n'affiche pas la virgule
+      *                    multiply 0.01 by somme of beneficiaires(tmpIndiceTab) giving tmpSommeEntiere
+                           initialize tmpSommeEntiere
+                           initialize tmpSommeDecimale
+      *                    Complètement Con le cobol
+                           multiply somme of beneficiaires(tmpIndiceTab) by 100 giving somme of beneficiaires(tmpIndiceTab)
+                           divide somme of beneficiaires(tmpIndiceTab) by 100 GIVING tmpSommeEntiere REMAINDER tmpSommeDecimale
+                           multiply somme of beneficiaires(tmpIndiceTab) by 0.01 giving somme of beneficiaires(tmpIndiceTab)
+
+                           STRING "  " nomB of variablesIntermediairesBeneficiaires "     " prenomB of variablesIntermediairesBeneficiaires "         " JJ of dateNaissanceB(tmpIndiceTab) "/" MM of dateNaissanceB(tmpIndiceTab) "/"
+                             AAAA of dateNaissanceB(tmpIndiceTab) "         " tmpSommeEntiere "," tmpSommeDecimale into res
+
+                           display res line NoLigneConfirmationAssuranceVie col 1
+                           add 1 to tmpIndiceTab
+                           add 1 to NoLigneConfirmationAssuranceVie
+                       end-perform
+
+      *                Après lui avoir montré toutes les données, on demande à l'utilisateur s'il confirme la création du contrat d'assurance vie
+                       accept optionConfirmationContrat line 18 col 16
+                       if optionConfirmationContrat = 1 then
+                           STRING Jour of dateSysteme "/" mois of DateSysteme "/" annee of DateSysteme into tmpDateCreaClient
+                           EXEC sql
+                             select NEWID() into :tmpCodeContratAV
+                           END-EXEC
+                           EXEC sql
+                             insert into contrats (codeContrat, codeClient, AV, dateSignature) VALUES (:tmpCodeContratAV, :assureVie.codeClientV, '1', :tmpDateCreaclient)
+                           END-EXEC
+                           if sqlcode >= 0 then
+                               move 1 to tmpIndiceTab
+                               perform until tmpIndiceTab > tailleTabB
+                                   initialize tmpSomme
+                                   move codeClientB of beneficiaires(tmpIndiceTab) to tmpCodeClient
+                                   move somme of beneficiaires(tmpIndiceTab) to tmpSomme
+      *                              AssurnaceVi étant une table associative ; associant le contrat du signataire aux bénéficiaires du contrat avec la somme qui leur est dû en cas de décès.
+                                   EXEC sql
+                                       insert into assurancesVie (codeContrat, codeClient, somme) VALUES (:tmpCodeContratAV, :tmpCodeClient, :tmpSomme)
+                                   END-EXEC
+                                   add 1 to tmpIndiceTab
+                               end-perform
+                           end-if
+                           if sqlcode >= 0 then
+                               display "Creation du contrat d'assurance vie reussi. APPUYEZ SUR ENTREE." line 19 col 5
+                               accept optionConfirmationContrat
+                           else
+                               display "Creation du contat d'assurance vie echouee. APPUYEZ SUR ENTREE." line 19 col 5
+                               accept optionConfirmationContrat
+                           end-if
+                           move 0 to optionCreationAssuranceVie
+                       end-if
            else if optionCreationAssuranceVie = 0 then
                move 0 to optionCreationAssuranceVie
            else 
                continue
            end-if.
-
 
 
        creationAssuranceVie-fin.
