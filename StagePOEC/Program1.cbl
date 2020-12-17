@@ -977,39 +977,40 @@
       **
       * The main procedure of the program
       **
-       Menu.
-           perform Menu-Init.
-           perform Menu-Trt until option = 0.
-           perform Menu-Fin.
-
-       Menu-Init.
-           move 1 to option.
-           accept DateSysteme FROM DATE.
-           MOVE FUNCTION CURRENT-DATE to WS-CURRENT-DATE-DATA.
+       call mainMenu.
+      *Menu.
+      *    perform Menu-Init.
+      *    perform Menu-Trt until option = 0.
+      *    perform Menu-Fin.
+      *
+      *Menu-Init.
+      *    move 1 to option.
+      *    accept DateSysteme FROM DATE.
+      *    MOVE FUNCTION CURRENT-DATE to WS-CURRENT-DATE-DATA.
       *    Connexion à la base de données
-           MOVE
-             "Trusted_Connection=yes;Database=stagePOECCobol;server=DESKTOP-G3KGIN3\SQLEXPRESS;factory=System.Data.SqlClient;"
-             to cnxDb.
-           exec sql
-               Connect using :CnxDb
-           end-exec.
-
+      *    MOVE
+      *      "Trusted_Connection=yes;Database=stagePOECCobol;server=DESKTOP-G3KGIN3\SQLEXPRESS;factory=System.Data.SqlClient;"
+      *      to cnxDb.
+      *    exec sql
+      *        Connect using :CnxDb
+      *    end-exec.
+      *
       *    Choix de l'autocommit
-           EXEC SQL
-               SET AUTOCOMMIT ON
-           End-EXEC.
-
-       Menu-Trt.
-           move 0 to Option.
-           display menu-principal.
-           accept option line 18 col 14.
-
-           evaluate option
-               when 1
-                   perform rechercheClient
-               when 2
-                   perform creationClient
-           end-evaluate.
+      *    EXEC SQL
+      *        SET AUTOCOMMIT ON
+      *    End-EXEC.
+      *
+      *Menu-Trt.
+      *    move 0 to Option.
+      *    display menu-principal.
+      *    accept option line 18 col 14.
+      *
+      *    evaluate option
+      *        when 1
+      *            perform rechercheClient
+      *        when 2
+      *            perform creationClient
+      *    end-evaluate.
 
        Menu-Fin.
            STOP RUN.
@@ -1034,24 +1035,15 @@
                move 1 to optionRechercheClientNom
            else
                initialize fillerREQSQL
-               initialize fillerREQSQL2
-               initialize fillerREQSQL3
 
                STRING codeClient of clientcourant '%' DELIMITED ' ' INTO fillerREQSQL
                STRING fillerREQSQL DELIMITED ' ' INTO fillerREQSQL
-
-               STRING nom of clientCourant '%' DELIMITED ' ' INTO fillerREQSQL2
-               STRING fillerREQSQL2 DELIMITED ' ' INTO fillerREQSQL2
-
-               STRING prenom of clientCourant '%' DELIMITED ' ' INTO fillerREQSQL3
-               STRING fillerREQSQL3 DELIMITED ' ' INTO fillerREQSQL3
 
                EXEC sql
                    declare CursorClient cursor for
                    select codeClient, nom, prenom, DAY(dateNaissance), MONTH(dateNaissance), YEAR(dateNaissance), adresse, codePostal, ville
                    from clients
-      *            where nom = :clientCourant.nom OR codeClient like :fillerREQSQL OR prenom = :clientCourant.prenom
-                   where nom like :fillerREQSQL2 OR codeClient like :fillerREQSQL OR prenom like :fillerREQSQL3
+                   where nom = :clientCourant.nom OR codeClient like :fillerREQSQL OR prenom = :clientCourant.prenom
                    order by nom
                END-EXEC
 
