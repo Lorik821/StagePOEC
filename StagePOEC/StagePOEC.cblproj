@@ -43,7 +43,7 @@
     <Import Include="System.Text" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="mainMenu.cbl" />
+    <Compile Include="MoveCorr.cbl" />
     <Compile Include="Program1.cbl" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Micro Focus\Visual COBOL\v1.0\MicroFocus.COBOL.targets" />

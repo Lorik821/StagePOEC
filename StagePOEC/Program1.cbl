@@ -139,11 +139,11 @@
            04 JJ PIC 9(2).
          03 validite PIC 9.
          03 franchise.
-           04 FRIT PIC 99.
-           04 FRPE PIC 99.
-           04 FRIA PIC 99.
-           04 FRMT PIC 99.
-           04 FRCH PIC 99.
+           04 FRIT PIC 9999.
+           04 FRPE PIC 9999.
+           04 FRIA PIC 9999.
+           04 FRMT PIC 9999.
+           04 FRCH PIC 9999.
 
        01 sinistreCourant.
          03 codeSinistre PIC x(36).
@@ -154,10 +154,10 @@
            04 AAAA PIC 9(4).
            04 MM PIC 9(2).
            04 JJ PIC 9(2).
+         03 prejudice PIC 9(9).
+         03 remboursable PIC 9(9).
 
        77 fillerREQSQL PIC x(5).
-       77 fillerREQSQL2 PIC x(30).
-       77 fillerREQSQL3 PIC x(30).
 
        01 listeClient.
          02 indice OCCURS 50.
@@ -205,11 +205,11 @@
              04 JJ PIC 9(2).
            03 validite PIC 9.
            03 franchise.
-             04 FRIT PIC 99.
-             04 FRPE PIC 99.
-             04 FRIA PIC 99.
-             04 FRMT PIC 99.
-             04 FRCH PIC 99.
+             04 FRIT PIC 9999.
+             04 FRPE PIC 9999.
+             04 FRIA PIC 9999.
+             04 FRMT PIC 9999.
+             04 FRCH PIC 9999.
 
        01 listeSinistre.
          02 sinistre OCCURS 50.
@@ -221,6 +221,8 @@
              04 AAAA PIC 9(4).
              04 MM PIC 9(2).
              04 JJ PIC 9(2).
+           03 prejudice PIC 9(9).
+           03 remboursable PIC 9(9).
 
        77 indiceTab PIC 99.
        77 tailleTab PIC 99.
@@ -312,6 +314,7 @@
          02 villeb PIC x(10).
 
        77 res PIC x(80).
+       77 sqlInsertSinistre PIC x(233).
 
       *Les différents sinistres :
       *    IT - Incapacité temporaire
@@ -344,7 +347,8 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
+      *  10 line 3 col 74 from annee of DateSysteme.
          10 line 8 col 5 value "- 1 - Client".
          10 line 9 col 5 value "- 2 - Creation Client".
          10 line 10 col 5 value "- 0 - Quitter ".
@@ -359,7 +363,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 8 col 5 value "Recherche par nom : ".
          10 line 8 col 25 using Nom PIC X(30).
          10 line 9 col 5 value "Recherche par prenom : ".
@@ -377,7 +381,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 17 col 5 value "Option : ".
          10 line 19 col 5 value "--------------------------------------------------------------------".
          10 line 20 col 5 value "- 1 - Ajouter beneficiaire deja enregistre                          ".
@@ -394,7 +398,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 8 col 5 value "Nom : ".
          10 line 8 col 11 using Nom PIC X(30).
          10 line 9 col 5 value "Prenom : ".
@@ -410,7 +414,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 8 col 5 value "Recherche par Numero de contrat : ".
          10 line 8 col 39 using codeClient PIC X(30).
          10 line 19 col 5 value "- 0 - pour quitter / - 1 - pour valider ".
@@ -425,7 +429,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 8 col 5 value "Recherche par Numero de sinistre : ".
          10 line 8 col 40 using codeClient PIC X(30).
          10 line 19 col 5 value "- 0 - pour quitter / - 1 - pour valider ".
@@ -440,7 +444,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 8 col 5 value "Nom : ".
          10 line 8 col 11 using Nom PIC X(30).
          10 line 9 col 5 value "Prenom : ".
@@ -474,7 +478,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 5 col 2 from codeClient PIC X(8).
          10 line 5 col 11 value "/".
          10 Line 5 Col 12 from Nom PIC X(10).
@@ -527,7 +531,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 6 col 1 value "Nu Client  Nom        Prenom   Adresse             CP    Ville      Naissance  ".
          10 line 7 col 1 value "-------------------------------------------------------------------------------".
          10 line 18 col 1 value " Num Client : ".
@@ -539,9 +543,9 @@
          10 line 18 col 75 value "de ".
          10 line 18 col 78 from pagesTotales.
          10 line 20 col 5 value "--------------------------------------------------------------------".
-         10 line 21 col 5 value "- Num- Selection du client         - S - Pages suivantes            ".
-         10 line 22 col 5 value "- 0 - Menu Precedant               - C - Contrat client             ".
-         10 line 23 col 5 value "                                   - D - Detail client              ".
+         10 line 21 col 5 value "- Num - Selection du client        - c - contrat client             ".
+         10 line 22 col 5 value "- 0 - Menu Precedant               - d - detail client              ".
+         10 line 23 col 5 value "- s - page suivante                                                 ".
          10 line 24 col 5 value "--------------------------------------------------------------------".
 
       *01 menu-Liste-Beneficiaire background-color is CouleurFondEcran foreground-color is CouleurCaractere.
@@ -552,7 +556,7 @@
       *  10 line 3 col 70 value "/".
       *  10 line 3 col 71 from mois of DateSysteme.
       *  10 line 3 col 73 value "/".
-      *  10 line 3 col 74 from annee of DateSysteme.
+      *  10 line 3 col 74 from WS-CURRENT-YEAR.
       *  10 line 6 col 1 value "Nu         Nom        Prenom   Adresse             CP    Ville      Naissance  ".
       *  10 line 7 col 1 value "-------------------------------------------------------------------------------".
       *  10 line 18 col 1 value " Num Beneficiaire : ".
@@ -575,7 +579,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 6 col 1 value "Nu         Nom        Prenom   Adresse             CP    Ville      Naissance  ".
          10 line 7 col 1 value "-------------------------------------------------------------------------------".
          10 line 18 col 1 value " Num Beneficiaire : ".
@@ -607,7 +611,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 5 col 2 using codeClient PIC X(8).
          10 line 5 col 11 value "/".
          10 Line 5 Col 12 using Nom PIC X(10).
@@ -641,7 +645,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 5 col 2 from codeClientV of assureVie PIC x(8).
          10 line 5 col 11 value "/".
          10 line 5 col 12 from nomV of assureVie PIC x(10).
@@ -683,7 +687,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 5 col 2 from codeClientV PIC X(8).
          10 line 5 col 11 value "/".
          10 Line 5 Col 12 from NomV PIC X(10).
@@ -712,7 +716,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 5 col 2 from codeClient PIC X(8).
          10 line 5 col 11 value "/".
          10 Line 5 Col 12 from Nom PIC X(10).
@@ -746,7 +750,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 5 col 2 using codeClient PIC X(8).
          10 line 5 col 11 value "/".
          10 Line 5 Col 12 using Nom PIC X(10).
@@ -781,9 +785,9 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 7 col 5 value "Code client       : ".
-         10 line 7 col 25 from codeClient PIC X(8).
+         10 line 7 col 25 from codeClient.
          10 line 8 col 5 value "Nom               : ".
          10 line 8 col 25 from Nom PIC X(30).
          10 line 9 col 5 value "Prenom            : ".
@@ -817,7 +821,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 5 col 2 from codeClient PIC X(8).
          10 line 5 col 11 value "/".
          10 Line 5 Col 12 from Nom PIC X(10).
@@ -839,21 +843,21 @@
          10 line 8 col 5 value " Code Contrat : ".
          10 line 8 col 19 from codeContrat of contratCourant PIC X(36).
          10 line 10 col 5 value " Garantie couverte : ".
-         10 line 12 col 5 value " IT - Incapacite Temporaire :                 Franchise de :    jours".
+         10 line 12 col 5 value " IT - Incapacite Temporaire :                 Franchise de :      euros".
          10 line 12 col 35 from IT of contratCourant PIC 9.
-         10 line 12 col 66 from FRIT of contratCourant PIC 99.
-         10 line 13 col 5 value " PE - Perte d'emploi        :                 Franchise de :    jours".
+         10 line 12 col 66 from FRIT of contratCourant PIC 9999.
+         10 line 13 col 5 value " PE - Perte d'emploi        :                 Franchise de :      euros".
          10 line 13 col 35 from PE of contratCourant PIC 9.
-         10 line 13 col 66 from FRPE of contratCourant PIC 99.
-         10 line 14 col 5 value " IA - Invalidite            :                 Franchise de :    jours".
+         10 line 13 col 66 from FRPE of contratCourant PIC 9999.
+         10 line 14 col 5 value " IA - Invalidite            :                 Franchise de :      euros".
          10 line 14 col 35 from IA of contratCourant PIC 9.
-         10 line 14 col 66 from FRIA of contratCourant PIC 99.
-         10 line 15 col 5 value " MT - Maternite             :                 Franchise de :    jours".
+         10 line 14 col 66 from FRIA of contratCourant PIC 9999.
+         10 line 15 col 5 value " MT - Maternite             :                 Franchise de :      euros".
          10 line 15 col 35 from MT of contratCourant PIC 9.
-         10 line 15 col 66 from FRMT of contratCourant PIC 99.
-         10 line 16 col 5 value " CH - Chomage               :                 Franchise de :    jours".
+         10 line 15 col 66 from FRMT of contratCourant PIC 9999.
+         10 line 16 col 5 value " CH - Chomage               :                 Franchise de :      euros".
          10 line 16 col 35 from CHM of contratCourant PIC 9.
-         10 line 16 col 66 from FRCH of contratCourant PIC 99.
+         10 line 16 col 66 from FRCH of contratCourant PIC 9999.
          10 line 18 col 5 value " Option : ".
       *  10 line 18 col 15 using option.
          10 line 20 col 5 value "--------------------------------------------------------------------".
@@ -870,7 +874,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 5 col 2 from codeClient PIC X(8).
          10 line 5 col 11 value "/".
          10 Line 5 Col 12 from Nom PIC X(10).
@@ -897,6 +901,10 @@
          10 line 10 col 21 from codeSinistre of sinistreCourant PIC X(36).
          10 line 12 col 5 value " Type de sinistre : ".
          10 line 12 col 25 from typeSinistre of sinistreCourant PIC XX.
+         10 line 14 col 5 value " Prejudice    :            euros".
+         10 line 14 col 21 from prejudice of sinistreCourant.
+         10 line 15 col 5 value " Remboursable :            euros".
+         10 line 15 col 21 from remboursable of sinistreCourant.
          10 line 18 col 5 value " Option : ".
          10 line 20 col 5 value "--------------------------------------------------------------------".
          10 line 21 col 5 value "- 0 - Menu Precedant                                                ".
@@ -912,7 +920,7 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
+         10 line 3 col 74 from WS-CURRENT-YEAR.
          10 line 5 col 2 using codeClient PIC X(8).
          10 line 5 col 11 value "/".
          10 Line 5 Col 12 using Nom PIC X(10).
@@ -925,18 +933,18 @@
          10 Line 5 Col 63 using MM of dateNaissance of clientCourant.
          10 line 5 col 65 value "/".
          10 Line 5 Col 66 using AAAA of dateNaissance of clientCourant.
-         10 line 7 col 5 value " Num/ type / date  / date sinistre                                   ".
+         10 line 7 col 1 value "Num       code contrat       type sinistre       date sinistre    prejudice (e)".
          10 line 16 col 5 value " Options : ".
          10 line 16 col 67 value "Page ".
          10 line 16 col 72 from pageCourante.
          10 line 16 col 75 value "de ".
          10 line 16 col 78 from pagesTotales.
          10 line 18 col 5 value "--------------------------------------------------------------------".
-         10 line 19 col 5 value "- Num- Visualisation sinistre             Incapacite temporaire (IT)".
+         10 line 19 col 5 value "- Num - Visualisation sinistre            Incapacite temporaire (IT)".
          10 line 20 col 5 value "- s - Pages suivantes                     Perte d'emploi (PE)       ".
-         10 line 21 col 5 value "- + - Creation sinistre                   Invalidite (IA)           ".
-         10 line 22 col 5 value "- - - Suppression sinistre                Maternite (MA)            ".
-         10 line 23 col 5 value "- 0 - Menu Contrat                        Chomage (CH)              ".
+         10 line 21 col 5 value "- + - Declaration sinistre                Invalidite (IA)           ".
+         10 line 22 col 5 value "- 0 - Menu contrat                        Maternite (MA)            ".
+         10 line 23 col 5 value "                                          Chomage (CH)              ".
          10 line 24 col 5 value "--------------------------------------------------------------------".
 
        01 Recherche-Sinistre-L background-color is CouleurFondEcran foreground-color is CouleurCaractere.
@@ -952,20 +960,31 @@
          10 line 3 col 70 value "/".
          10 line 3 col 71 from mois of DateSysteme.
          10 line 3 col 73 value "/".
-         10 line 3 col 74 from annee of DateSysteme.
-         10 line 5 col 5 from codeClient PIC X(8).
-         10 line 5 col 15 value "/".
-         10 Line 5 Col 40 from Nom PIC X(15).
-         10 line 5 col 57 value "/".
-         10 Line 5 Col 59 from Prenom PIC X(15).
+         10 line 3 col 74 from WS-CURRENT-YEAR.
+         10 line 5 col 2 from codeClient PIC X(8).
+         10 line 5 col 11 value "/".
+         10 Line 5 Col 12 from Nom PIC X(10).
+         10 line 5 col 23 value "/".
+         10 Line 5 Col 24 from Prenom PIC X(10).
+         10 line 5 col 35 value "/".
+         10 Line 5 Col 36 from Ville PIC X(15).
+         10 Line 5 Col 60 from JJ of dateNaissance of clientCourant.
+         10 line 5 col 62 value "/".
+         10 Line 5 Col 63 from MM of dateNaissance of clientCourant.
+         10 line 5 col 65 value "/".
+         10 Line 5 Col 66 from AAAA of dateNaissance of clientCourant.
          10 line 8 col 5 value "Date du sinistre : ".
          10 Line 8 Col 24 using JJ of Datesinistre of sinistreCourant.
+         10 line 8 col 26 value "/".
          10 Line 8 Col 27 using MM of Datesinistre of sinistreCourant.
+         10 line 8 col 29 value "/".
          10 Line 8 Col 30 using AAAA of Datesinistre of sinistreCourant.
          10 line 12 col 5 value " Type : ".
          10 line 12 col 13 using typeSinistre of sinistreCourant.
+         10 line 14 col 5 value " Prejudice : ".
+         10 line 14 col 18 using prejudice of sinistreCourant.
          10 line 18 col 5 value " Options : ".
-         10 line 18 col 23 using OptionDeclaration.
+         10 line 18 col 15 using OptionDeclaration.
          10 line 20 col 5 value "--------------------------------------------------------------------".
          10 line 21 col 5 value "- 1 - Validation du sinistre                                        ".
          10 line 22 col 5 value "- 0 - Menu Contrat                                                  ".
@@ -977,40 +996,46 @@
       **
       * The main procedure of the program
       **
-       call mainMenu.
-      *Menu.
-      *    perform Menu-Init.
-      *    perform Menu-Trt until option = 0.
-      *    perform Menu-Fin.
-      *
-      *Menu-Init.
-      *    move 1 to option.
-      *    accept DateSysteme FROM DATE.
-      *    MOVE FUNCTION CURRENT-DATE to WS-CURRENT-DATE-DATA.
+      *    call mainMenu using option,
+      *                        DateSysteme,
+      *                        WS-CURRENT-DATE-DATA,
+      *                        CNXDB,
+      *                        CouleurFondEcran,
+      *                        CouleurCaractere
+      *    end-call.
+       Menu.
+           perform Menu-Init.
+           perform Menu-Trt until option = 0.
+           perform Menu-Fin.
+       
+       Menu-Init.
+           move 1 to option.
+           accept DateSysteme FROM DATE.
+           MOVE FUNCTION CURRENT-DATE to WS-CURRENT-DATE-DATA.
       *    Connexion à la base de données
-      *    MOVE
-      *      "Trusted_Connection=yes;Database=stagePOECCobol;server=DESKTOP-G3KGIN3\SQLEXPRESS;factory=System.Data.SqlClient;"
-      *      to cnxDb.
-      *    exec sql
-      *        Connect using :CnxDb
-      *    end-exec.
-      *
+           MOVE
+             "Trusted_Connection=yes;Database=stagePOECCobol;server=DESKTOP-G3KGIN3\SQLEXPRESS;factory=System.Data.SqlClient;"
+             to cnxDb.
+           exec sql
+               Connect using :CnxDb
+           end-exec.
+       
       *    Choix de l'autocommit
-      *    EXEC SQL
-      *        SET AUTOCOMMIT ON
-      *    End-EXEC.
-      *
-      *Menu-Trt.
-      *    move 0 to Option.
-      *    display menu-principal.
-      *    accept option line 18 col 14.
-      *
-      *    evaluate option
-      *        when 1
-      *            perform rechercheClient
-      *        when 2
-      *            perform creationClient
-      *    end-evaluate.
+           EXEC SQL
+               SET AUTOCOMMIT ON
+           End-EXEC.
+       
+       Menu-Trt.
+           move 0 to Option.
+           display menu-principal.
+           accept option line 18 col 14.
+       
+           evaluate option
+               when 1
+                   perform rechercheClient
+               when 2
+                   perform creationClient
+           end-evaluate.
 
        Menu-Fin.
            STOP RUN.
@@ -1060,17 +1085,18 @@
                      :clientCourant.adresse, :clientCourant.codePostal, :clientCourant.ville
                    END-EXEC
                    IF SQLCODE >= 0 THEN
-                       move codeClient of clientCourant to codeClientL of client(indiceTab)
-                       move nom of clientCourant to nomL of client(indiceTab)
-                       move prenom of clientCourant to prenomL of client(indiceTab)
-                       move JJ of dateNaissance to JJ of dateNaissanceL(indiceTab)
-                       move MM of dateNaissance to MM of dateNaissanceL(indiceTab)
-                       move AAAA of dateNaissance to AAAA of dateNaissanceL(indiceTab)
-                       move adresse of clientCourant to adresseL of client(indiceTab)
-                       move codePostal of clientCourant to codePostalL of client(indiceTab)
-                       move ville of clientCourant to villeL of client(indiceTab)
-                       add 1 to indiceTab
-                       add 1 to tailleTab
+                       call "MoveCorr" using clientCourant listeClient indiceTab tailleTab
+      *                move codeClient of clientCourant to codeClientL of client(indiceTab)
+      *                move nom of clientCourant to nomL of client(indiceTab)
+      *                move prenom of clientCourant to prenomL of client(indiceTab)
+      *                move JJ of dateNaissance to JJ of dateNaissanceL(indiceTab)
+      *                move MM of dateNaissance to MM of dateNaissanceL(indiceTab)
+      *                move AAAA of dateNaissance to AAAA of dateNaissanceL(indiceTab)
+      *                move adresse of clientCourant to adresseL of client(indiceTab)
+      *                move codePostal of clientCourant to codePostalL of client(indiceTab)
+      *                move ville of clientCourant to villeL of client(indiceTab)
+      *                add 1 to indiceTab
+      *                add 1 to tailleTab
                    end-if
                END-PERFORM
       *        EXEC SQL
@@ -1097,39 +1123,6 @@
            END-EXEC.
            move 1 to option.
 
-      *** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** *
-      * Recherche de sinistres
-      ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** *
-       rechercheSinistre.
-           perform rechercheSinistre-init.
-           perform rechercheSinistre-trt.
-           perform rechercheSinistre-fin.
-
-       rechercheSinistre-init.
-           continue.
-
-       rechercheSinistre-trt.
-           continue.
-
-       rechercheSinistre-fin.
-           continue.
-
-      *** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** *
-      * Recherche contrats
-      ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** *
-       rechercheContrat.
-           perform rechercheContrat-init.
-           perform rechercheContrat-trt.
-           perform rechercheContrat-fin.
-
-       rechercheContrat-init.
-           continue.
-
-       rechercheContrat-trt.
-           display Menu-Recherche-contrat.
-
-       rechercheContrat-fin.
-           continue.
 
       ** * ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** *
       * Visualisation des contrats du client courant
@@ -1152,7 +1145,7 @@
            if tailleTabSinistres = 0 then
                EXEC sql
                  declare CursorSinistres cursor for
-                 select codeSinistre, codeClient, codeContrat, typeSinistre, DAY(dateDuSinistre), MONTH(dateDuSinistre), YEAR(dateDuSinistre)
+                 select codeSinistre, codeClient, codeContrat, typeSinistre, DAY(dateDuSinistre), MONTH(dateDuSinistre), YEAR(dateDuSinistre), prejudice
                  from sinistres
                  where codeClient = :clientCourant.codeClient
                  order by dateDuSinistre
@@ -1165,7 +1158,7 @@
                perform until SQLCODE <> 0
                    EXEC sql
                      fetch CursorSinistres into :sinistreCourant.codeSinistre, :sinistreCourant.refCodeClient, :sinistreCourant.refCodeContrat, :sinistreCourant.typeSinistre,
-                          :sinistreCourant.dateSinistre.JJ, :sinistreCourant.dateSinistre.MM, :sinistreCourant.dateSinistre.AAAA
+                          :sinistreCourant.dateSinistre.JJ, :sinistreCourant.dateSinistre.MM, :sinistreCourant.dateSinistre.AAAA, :sinistreCourant.prejudice
                    END-EXEC
                    if SQLCODE >= 0 then
                        move corresponding sinistreCourant to sinistre of listeSinistre(indiceSinistre)
@@ -1204,12 +1197,26 @@
       *            end-if
 
       *            Création et affichage de la ligne du contrat à partir des variables
-                   STRING NoLigneVisibleSinistre "              " tmpCodeSinistre "                  " typeSinistre of sinistre(indiceTabSinistre) "               " JJ of sinistre(indiceTabSinistre) "/" MM of sinistre(indiceTabSinistre) "/" AAAA of
+                   STRING NoLigneVisibleSinistre "            " tmpCodeSinistre "              " typeSinistre of sinistre(indiceTabSinistre) "             " JJ of sinistre(indiceTabSinistre) "/" MM of sinistre(indiceTabSinistre) "/" AAAA of
                      sinistre(
-                       indiceTabSinistre)
+                       indiceTabSinistre) "        " prejudice of sinistre of listeSinistre(indiceTabSinistre)
                      INTO
                      resSinistres
                    DISPLAY resSinistres line NoLigneSinistre col 1
+
+      *            subtract prejudice of sinistre(indiceTabSinistre) FROM FR
+                   evaluate typeSinistre of sinistre(indiceTabSinistre)
+                       WHEN 'IT'
+                           subtract prejudice of sinistre(indiceTabSinistre) FROM FRIT of contratCourant GIVING remboursable of sinistre(indiceTabSinistre)
+                       WHEN 'PE'
+                           subtract prejudice of sinistre(indiceTabSinistre) FROM FRPE of contratCourant GIVING remboursable of sinistre(indiceTabSinistre)
+                       WHEN 'IA'
+                           subtract prejudice of sinistre(indiceTabSinistre) FROM FRIA of contratCourant GIVING remboursable of sinistre(indiceTabSinistre)
+                       WHEN 'MT'
+                           subtract prejudice of sinistre(indiceTabSinistre) FROM FRMT of contratCourant GIVING remboursable of sinistre(indiceTabSinistre)
+                       WHEN 'CH'
+                           subtract prejudice of sinistre(indiceTabSinistre) FROM FRCH of contratCourant GIVING remboursable of sinistre(indiceTabSinistre)
+                   end-evaluate
 
                    add 1 to indiceTabSinistre
                    add 1 to NoLigneSinistre
@@ -1236,6 +1243,7 @@
                    else if optionVisualisationSinistres = '+'
                        move 'ok' to optionIsSinistre
                        perform declarationSinistre
+                       perform menuVisualisationSinistres
                    else if optionVisualisationSinistres = 0
                        move 'ok' to optionIsSinistre
                        move tailleTabSinistres to indiceTabSinistre
@@ -1351,13 +1359,15 @@
                    END-IF
 
       *            Calcul pour savoir si le contrat est toujours valide (ne prend pas en compte les années bisectiles) et modifie la variable str qui permet d'afficher si oui ou non le contrat est valide
-                   subtract annee of DateSysteme from AAAA of dateSignature of indice(indiceTabContrats) GIVING annees of variablesIntermediairesContratsDates
+                   subtract WS-CURRENT-YEAR from AAAA of dateSignature of indice(indiceTabContrats) GIVING annees of variablesIntermediairesContratsDates
                    subtract Mois of DateSysteme from MM of dateSignature of indice(indiceTabContrats) GIVING mois of variablesIntermediairesContratsDates
                    subtract jour of DateSysteme from JJ of dateSignature of indice(indiceTabContrats) GIVING jours of variablesIntermediairesContratsDates
                    multiply 365 by annees GIVING totalJours
                    multiply 30.58 by mois of variablesIntermediairesContratsDates GIVING mois of variablesIntermediairesContratsDates
                    add mois of variablesIntermediairesContratsDates jours to totalJours
-                   IF totalJours > 365
+      *
+      *            Les assurances vie n'ayant de péremption au dela d'un an, on fait un contrôle, le c'est une assurance vie, on se contente d'afficher oui
+                   IF totalJours > 365 AND AV of indice(indiceTabContrats) <> 1
                        move 0 to validite of indice(indiceTabContrats)
                        move 'non' to str of variablesIntermediairesContratsDates
                    END-IF
@@ -1576,7 +1586,7 @@
            accept menu-Declaration-sinistre.
            if optionDeclaration = 1 AND (typeSinistre of sinistreCourant = 'IT' OR typeSinistre of sinistreCourant = 'PE' OR typeSinistre of sinistreCourant = 'IA' OR typeSinistre of sinistreCourant = 'MT' OR typeSinistre of sinistreCourant = 'CH')
 
-      *        Calcul des différentes dates pour contrôle
+      *        Calcul des différentes dates pour contrôle (hélas le contrôle n'est pas très précis)
                multiply AAAA of sinistreCourant by 365 GIVING anneesEnJours
                multiply MM of sinistreCourant by 30.58 GIVING moisEnJours
                add anneesEnJours moisEnJours JJ of sinistreCourant to dateEnJours
@@ -1589,32 +1599,39 @@
                multiply MM of contratCourant by 30.58 giving moisContratEnJours
                add anneesContratEnJour moisEnJours JJ of contratCourant to dateContratEnJours
 
+               move 0 to contratCouvreSinistre
       *        Calcul pour obtenir les sinistres couverts par le contrat du client
-      *        if IT of sinistresCouverts of contratCourant = 1 AND typeSinistre of sinistreCourant = 'IT' then
-      *            move 1 to contratCouvreSinistre
-      *        else if PE of sinistresCouverts of contratCourant = 1 AND typeSinistre of sinistreCourant = 'PE' then
-      *            move 1 to contratCouvreSinistre
-      *        else if IA of sinistresCouverts of contratCourant = 1 AND typeSinistre of sinistreCourant = 'IA' then
-      *            move 1 to contratCouvreSinistre
-      *        else if MT of sinistresCouverts of contratCourant = 1 AND typeSinistre of sinistreCourant = 'MT' then
-      *            move 1 to contratCouvreSinistre
-      *        else if CHM of sinistresCouverts of contratCourant = 1 AND typeSinistre of sinistreCourant = 'CH' then
-      *            move 1 to contratCouvreSinistre
-      *        end-if
-               move 1 to contratCouvreSinistre
+               if IT of sinistresCouverts of contratCourant = 1 AND typeSinistre of sinistreCourant = 'IT' then
+                   move 1 to contratCouvreSinistre
+               end-if
+               if PE of sinistresCouverts of contratCourant = 1 AND typeSinistre of sinistreCourant = 'PE' then
+                   move 1 to contratCouvreSinistre
+               end-if
+               if IA of sinistresCouverts of contratCourant = 1 AND typeSinistre of sinistreCourant = 'IA' then
+                   move 1 to contratCouvreSinistre
+               end-if
+               if MT of sinistresCouverts of contratCourant = 1 AND typeSinistre of sinistreCourant = 'MT' then
+                   move 1 to contratCouvreSinistre
+               end-if
+               if CHM of sinistresCouverts of contratCourant = 1 AND typeSinistre of sinistreCourant = 'CH' then
+                   move 1 to contratCouvreSinistre
+               end-if
+      *        move 1 to contratCouvreSinistre
 
       *        Contrôle du fait que la date que l'utilisateur entre soit inférieure à la date du contrat et à la date du jour même si c'est inutile et Vérification si le contrat du client couvre le sinistre déclaré
                if (dateEnJours <= dateSystemeEnJours AND dateEnJours >= dateContratEnJours AND contratCouvreSinistre = 1) then
       *            On utilise ici une variable qui n'a pas vraiement sa place (tmpDateCreaClient), mais cela n'a aucune incidence de l'utiliser ici
                    STRING JJ of sinistreCourant "-" MM of sinistreCourant "-" AAAA of sinistreCourant into tmpDateCreaClient
                    EXEC sql
-                     select NEWID() INTO :sinistreCourant.codeSinistre
+                     select newid() into :sinistreCourant.codeSinistre
                    END-EXEC
+      *
                    EXEC sql
-                       INSERT INTO sinistres (codeSinistre, codeClient, codeContrat, typeSinistre, dateDuSinistre)
-      *                VALUE ('FA49C503-1FE4-49BE-90E3-E419FD031C0A', '52215E3A-46B8-4796-AD07-168A03F2F478', 'ACF55041-6AD0-4F5E-AB89-199F16D84904', 'IT', '12-12-2020')
-                       VALUE (:sinistreCourant.codeSinistre, :clientCourant.codeClient, :contratCourant.codeContrat, :sinistreCourant.typeSinistre, :tmpDateCreaClient)
+                     INSERT INTO sinistres (codeSinistre, codeClient, codeContrat, typeSinistre, dateDuSinistre, prejudice) VALUES (:sinistreCourant.codeSinistre, :clientCourant.codeClient, :contratCourant.codeContrat, :sinistreCourant.typeSinistre, :
+                     tmpDateCreaClient, :sinistreCourant.prejudice)
                    END-EXEC
+
+      *            On ffiche si tout s'est bien passé
                    if SQLCODE >= 0
                        DISPLAY "Declaration du sinistre effectue. APPUYEZ SUR ENTREE" line 18 col 5
                        accept optionDeclaration
@@ -1883,7 +1900,7 @@
            display menu-Crea-mod-contrat.
            accept menu-Crea-mod-contrat.
 
-      *    Ici on contrôle que le nouveau contrat poss_de au moins un sinistre ; cela n'a aucun sens de créer un contrat qui ne couvre aucun sinistre 
+      *    Ici on contrôle que le nouveau contrat possède au moins un sinistre ; cela n'a aucun sens de créer un contrat qui ne couvre aucun sinistre
            if IT of contratCourant = 1
                move 1 to contratOK
            else if PE of contratCourant = 1
@@ -1894,6 +1911,19 @@
                move 1 to contratOK
            else if CHM of contratCourant = 1
                move 1 to contratOK
+           end-if.
+
+      *    En outre, il nous faut vérifier que les éventuelles franchises replient correspondent à un sinistre sélectionné
+           if FRIT of contratCourant <> 0 AND IT of contratCourant <> 1
+               move 0 to contratOK
+           else if FRPE of contratCourant <> 0 AND PE of contratCourant <> 1
+               move 0 to contratOK
+           else if FRIA of contratCourant <> 0 AND IA of contratCourant <> 1
+               move 0 to contratOK
+           else if FRMT of contratCourant <> 0 AND MT of contratCourant <> 1
+               move 0 to contratOK
+           else if FRCH of contratCourant <> 0 AND CHM of contratCourant <> 1
+               move 0 to contratOK
            end-if.
 
       *    Condition principale qui contrôle les champs saisis par l'utilisateur
@@ -2032,7 +2062,9 @@
                end-if.
 
        creationClient-fin.
-           continue.
+           initialize clientCourant.
+
+
       ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** *
       * Modification des clients
       ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** *
@@ -2051,7 +2083,7 @@
            accept menu-Crea-mod-client.
            if optionCreationClient = 1 AND nom of clientCourant <> '' AND prenom of clientCourant <> '' AND adresse of clientCourant <> '' AND codePostal of clientCourant <> '' AND ville of clientCourant <> '' AND (JJ of dateNaissance of clientCourant >=
              1 AND JJ of dateNaissance of clientCourant <= 31) AND (MM of dateNaissance of clientCourant >= 1 AND MM of dateNaissance of clientCourant <= 12) AND (AAAA of dateNaissance of clientCourant >= 1900 AND AAAA of dateNaissance of clientCourant <=
-             annee of DateSysteme) then
+             WS-CURRENT-YEAR) then
                STRING JJ of dateNaissance of clientCourant "-" MM of dateNaissance of clientCourant "-" AAAA of dateNaissance of clientCourant INTO tmpDateCreaClient
                EXEC sql
                    UPDATE clients
@@ -2064,11 +2096,11 @@
                    where codeClient = :clientCourant.codeClient
                END-EXEC
                if SQLCODE >= 0
-                   Display "Modification du client reussie." line 18 col 5
+                   Display "Modification du client reussie. APPUYEZ SUR ENTREE." line 18 col 5
                    accept optionCreationClient
                    move 0 to optionCreationClient
                else
-                   Display "Modification du client echouee." line 18 col 5
+                   Display "Modification du client echouee. APPUYEZ SUR ENTREE." line 18 col 5
                    accept optionCreationClient
                    move 1 to optionCreationClient
                end-if
@@ -2176,6 +2208,7 @@
 
        menuDetailClient.
            display menu-detail-client.
+           move 0 to optionDetailClient.
            accept optionDetailClient line 17 col 14.
            if optionDetailClient = 1
                perform modificationClient
