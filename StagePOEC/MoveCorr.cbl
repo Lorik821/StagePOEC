@@ -36,7 +36,7 @@
 
 
        procedure division using clientCourant listeClient indiceTab tailleTab.
-
+           
            move codeClient of clientCourant to codeClientL of client(indiceTab).
            move nom of clientCourant to nomL of client(indiceTab).
            move prenom of clientCourant to prenomL of client(indiceTab).
