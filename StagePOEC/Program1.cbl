@@ -499,22 +499,22 @@
       *  10 Line 7 Col 32 from AAAA of contratcourant.
       *  10 line 8 col 5 value " Code Contrat : ".
       *  10 line 8 col 19 from codeContrat of contratCourant PIC X(36).
-         10 line 10 col 5 value " Garantie couverte : ".
-         10 line 12 col 5 value " IT - Incapacite Temporaire :                 Franchise de :    jours".
+         10 line 10 col 5 value " Garantie(s) couverte(s) : ".
+         10 line 12 col 5 value " IT - Incapacite Temporaire :                 Franchise de :         euros".
          10 line 12 col 35 using IT of contratCourant PIC 9.
-         10 line 13 col 5 value " PE - Perte d'emploi        :                 Franchise de :    jours".
+         10 line 13 col 5 value " PE - Perte d'emploi        :                 Franchise de :         euros".
          10 line 13 col 35 using PE of contratCourant PIC 9.
-         10 line 14 col 5 value " IA - Invalidite            :                 Franchise de :    jours".
+         10 line 14 col 5 value " IA - Invalidite            :                 Franchise de :         euros".
          10 line 14 col 35 using IA of contratCourant PIC 9.
-         10 line 15 col 5 value " MT - Maternite             :                 Franchise de :    jours".
+         10 line 15 col 5 value " MT - Maternite             :                 Franchise de :         euros".
          10 line 15 col 35 using MT of contratCourant PIC 9.
-         10 line 16 col 5 value " CH - Chomage               :                 Franchise de :    jours".
+         10 line 16 col 5 value " CH - Chomage               :                 Franchise de :         euros".
          10 line 16 col 35 using CHM of contratCourant PIC 9.
-         10 line 12 col 66 using FRIT of contratCourant PIC 99 value 0.
-         10 line 13 col 66 using FRPE of contratCourant PIC 99 value 0.
-         10 line 14 col 66 using FRIA of contratCourant PIC 99 value 0.
-         10 line 15 col 66 using FRMT of contratCourant PIC 99 value 0.
-         10 line 16 col 66 using FRCH of contratCourant PIC 99 value 0.
+         10 line 12 col 66 using FRIT of contratCourant PIC 9(6) value 0.
+         10 line 13 col 66 using FRPE of contratCourant PIC 9(6) value 0.
+         10 line 14 col 66 using FRIA of contratCourant PIC 9(6) value 0.
+         10 line 15 col 66 using FRMT of contratCourant PIC 9(6) value 0.
+         10 line 16 col 66 using FRCH of contratCourant PIC 9(6) value 0.
          10 line 18 col 5 value " Option : ".
          10 line 18 col 15 using optionCreationContrat.
          10 line 20 col 5 value "--------------------------------------------------------------------".
@@ -1085,18 +1085,18 @@
                      :clientCourant.adresse, :clientCourant.codePostal, :clientCourant.ville
                    END-EXEC
                    IF SQLCODE >= 0 THEN
-                       call "MoveCorr" using clientCourant listeClient indiceTab tailleTab
-      *                move codeClient of clientCourant to codeClientL of client(indiceTab)
-      *                move nom of clientCourant to nomL of client(indiceTab)
-      *                move prenom of clientCourant to prenomL of client(indiceTab)
-      *                move JJ of dateNaissance to JJ of dateNaissanceL(indiceTab)
-      *                move MM of dateNaissance to MM of dateNaissanceL(indiceTab)
-      *                move AAAA of dateNaissance to AAAA of dateNaissanceL(indiceTab)
-      *                move adresse of clientCourant to adresseL of client(indiceTab)
-      *                move codePostal of clientCourant to codePostalL of client(indiceTab)
-      *                move ville of clientCourant to villeL of client(indiceTab)
-      *                add 1 to indiceTab
-      *                add 1 to tailleTab
+      *                call "MoveCorr" using clientCourant listeClient indiceTab tailleTab
+                       move codeClient of clientCourant to codeClientL of client(indiceTab)
+                       move nom of clientCourant to nomL of client(indiceTab)
+                       move prenom of clientCourant to prenomL of client(indiceTab)
+                       move JJ of dateNaissance to JJ of dateNaissanceL(indiceTab)
+                       move MM of dateNaissance to MM of dateNaissanceL(indiceTab)
+                       move AAAA of dateNaissance to AAAA of dateNaissanceL(indiceTab)
+                       move adresse of clientCourant to adresseL of client(indiceTab)
+                       move codePostal of clientCourant to codePostalL of client(indiceTab)
+                       move ville of clientCourant to villeL of client(indiceTab)
+                       add 1 to indiceTab
+                       add 1 to tailleTab
                    end-if
                END-PERFORM
       *        EXEC SQL
@@ -2045,11 +2045,12 @@
                  VALUES (:clientCourant.codeClient, :clientCourant.nom, :clientCourant.prenom, :tmpDateCreaClient, :clientCourant.adresse, :clientCourant.codePostal, :clientCourant.ville)
                END-EXEC
                if SQLCODE >= 0
-                   Display "Creation du client reussie." line 18 col 5
+                   Display 
+                   "Creation du client reussie. APPUYEZ SUR ENTREE" line 18 col 5
                    accept optionCreationClient
                    move 0 to optionCreationClient
                else
-                   Display "Creation du client echouee." line 18 col 5
+                   Display "Creation du client echouee. APPUYEZ SUR ENTREE" line 18 col 5
                    accept optionCreationClient
                    move 1 to optionCreationClient
                end-if
@@ -2062,7 +2063,10 @@
                end-if.
 
        creationClient-fin.
-           initialize clientCourant.
+           if rechercheBeneficiaire = 0 then
+               initialize clientCourant
+           end-if.
+
 
 
       ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** *
